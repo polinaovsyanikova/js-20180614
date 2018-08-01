@@ -24,6 +24,10 @@ export default class PhonesPage {
 
         this._catalog.hide();
         this._viewer.showPhone(phone);
+      },
+
+      backToCatalog: () => {
+          this._catalog.show();
       }
     });
   }
@@ -58,10 +62,7 @@ export default class PhonesPage {
       
             <section>
               <p>Shopping Cart</p>
-              <ul>
-                <li>Phone 1</li>
-                <li>Phone 2</li>
-                <li>Phone 3</li>
+              <ul id="cart">
               </ul>
             </section>
           </div>

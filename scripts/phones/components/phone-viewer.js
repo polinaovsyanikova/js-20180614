@@ -1,20 +1,24 @@
 'use strict'
 
 import Component from '../../component.js';
+import PhoneCatalog from "../components/phone-catalog.js";
+import PhonesPage from "../phones-page";
+
+console.log(PhoneCatalog);
 
 export default class PhoneViewer extends Component {
     constructor({element}) {
         super({ element });
-        this.on('click', '.btn-back', (event) => {
-            let btnBack = event.delegateTarget;
-
-            super.hide();
-        });
 
         this.on('click', '.phone-thumbs li img', (event) => {
             let thumbnail = event.delegateTarget;
 
-            this.initGallery(thumbnail.getAttribute('src');
+            this.initGallery(thumbnail.getAttribute('src'))
+        });
+
+        this.on('click', '.btn-back', (event) => {
+            let btnBack = event.delegateTarget;
+            super.hide();
         });
     }
 
