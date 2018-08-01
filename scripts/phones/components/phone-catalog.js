@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 import Component from '../../component.js'
 
@@ -28,9 +28,8 @@ export default class PhoneCatalog extends Component {
 
     this.show();
   }
-
-  _render() {
-    this._element.innerHTML = `
+    _render() {
+        this._element.innerHTML = `
       <ul class="phones">
         ${ this._phones.map(phone => `
         
@@ -66,5 +65,5 @@ export default class PhoneCatalog extends Component {
         `).join('') }
       </ul>
     `;
-  }
+    }
 }

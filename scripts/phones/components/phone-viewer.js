@@ -1,6 +1,10 @@
 'use strict'
 
 import Component from '../../component.js';
+import PhoneCatalog from "../components/phone-catalog.js";
+import PhonesPage from "../phones-page";
+
+console.log(PhoneCatalog);
 
 export default class PhoneViewer extends Component {
 
@@ -15,7 +19,6 @@ export default class PhoneViewer extends Component {
       this._trigger('add', this._phone.id);
     });
   }
-
 
   showPhone(phone) {
     this._phone = phone;
