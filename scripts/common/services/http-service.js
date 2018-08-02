@@ -1,9 +1,11 @@
+const API_URL = 'http://localhost:3000/api/'
+
 const HttpService = {
   sendRequest(url, successCallback, errorCallback) {
     let method = 'GET';
     let xhr = new XMLHttpRequest();
 
-    xhr.open(method, url, true);
+    xhr.open(method, API_URL + url, true);
     xhr.send();
 
     xhr.onload = () => {
