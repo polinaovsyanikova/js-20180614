@@ -21,15 +21,19 @@ export default class PhonesPage {
   _initCatalog() {
     this._catalog = new PhoneCatalog({
       element: this._element.querySelector('[data-component="phone-catalog"]'),
-      phones: PhoneService.getAll(),
+    });
+
+    PhoneService.getAll((phones) => {
+      this._catalog.showPhones(phones)
     });
 
     this._catalog.on('phoneSelected', (event) => {
       let phoneId = event.detail;
-      let phone = PhoneService.get(phoneId);
 
-      this._catalog.hide();
-      this._viewer.showPhone(phone);
+      PhoneService.get(phoneId, (phone) => {
+        this._catalog.hide();
+        this._viewer.showPhone(phone);
+      });
     });
 
     this._catalog.on('addToShoppingCart', (event) => {
