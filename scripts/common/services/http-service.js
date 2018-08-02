@@ -1,12 +1,6 @@
 const HttpService = {
-  sendRequest(
-    url,
-    {
-      method = 'GET',
-      successCallback = () => {},
-      errorCallback = console.error,
-    } = {}
-  ) {
+  sendRequest(url, successCallback, errorCallback) {
+    let method = 'GET';
     let xhr = new XMLHttpRequest();
 
     xhr.open(method, url, true);
