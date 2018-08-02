@@ -1,35 +1,57 @@
-export default class ShoppingCart {
-  constructor({ element }) {
-    this._element = element;
+import Component from '../../component.js'
 
-    this._items = [];
+export default class ShoppingCart extends Component {
+  constructor({ element }) {
+    super({ element });
+
+    this._items = {};
+
+    this._render();
+
+    this.on('click', '[data-element="button-remove"]', (event) => {
+      let item = event.delegateTarget.dataset.item;
+
+      this.removeItem(item);
+    });
+  }
+
+  addItem(item) {
+    if (!this._items[item]) {
+      this._items[item] = 0;
+    }
+
+    this._items[item]++;
 
     this._render();
   }
 
-  addItem(item) {
-    this._items.push(item);
+  removeItem(item) {
+    if (this._items[item]) {
+      this._items[item]--;
+    }
+
+    if (this._items[item] === 0) {
+      delete this._items[item];
+    }
 
     this._render();
   }
 
   _render() {
-    if (this._items.length === 0) {
-      this._element.innerHTML = `
-        <p>Shopping Cart</p>
-        <p>No items yet</p>
-      `;
-
-      return;
-    }
-
-
     this._element.innerHTML = `
       <p>Shopping Cart</p>
       <ul>
-        ${ this._items.map(item => `
+        ${ Object.keys(this._items).map(item => `
         
-          <li>${ item } <button>x</button></li>
+          <li>
+            ${ item } (${ this._items[item] })
+            <button
+              data-element="button-remove"
+              data-item="${ item }"
+            >
+              x
+            </button>
+          </li>
         
         `).join('')}
       </ul>
