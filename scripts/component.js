@@ -15,6 +15,14 @@ export default class Component {
     this._element.classList.add(HIDDEN_CLASS)
   }
 
+  _trigger(eventName, data) {
+    let customEvent = new CustomEvent(eventName, {
+      detail: data
+    });
+
+    this._element.dispatchEvent(customEvent);
+  }
+
   on(eventName, selector, callback) {
     if (!callback) {
       callback = selector

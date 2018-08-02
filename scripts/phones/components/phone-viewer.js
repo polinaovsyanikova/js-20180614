@@ -4,16 +4,24 @@ import Component from '../../component.js';
 
 export default class PhoneViewer extends Component {
 
+  constructor ({ element }) {
+    super({ element });
+
+    this.on('click', '[data-element="button-back"]', () => {
+      this._trigger('back');
+    });
+
+    this.on('click', '[data-element="button-add"]', () => {
+      this._trigger('add', this._phone.id);
+    });
+  }
+
+
   showPhone(phone) {
+    this._phone = phone;
     this._render(phone);
 
     super.show();
-
-    this.on('click', '[data-element="button-back"]', () => {
-      let customEvent = new CustomEvent('back');
-
-      this._element.dispatchEvent(customEvent);
-    })
   }
 
   _render(phone) {
