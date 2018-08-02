@@ -8,6 +8,12 @@ export default class PhoneViewer extends Component {
     this._render(phone);
 
     super.show();
+
+    this.on('click', '[data-element="button-back"]', () => {
+      let customEvent = new CustomEvent('back');
+
+      this._element.dispatchEvent(customEvent);
+    })
   }
 
   _render(phone) {

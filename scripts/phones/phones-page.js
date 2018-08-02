@@ -24,7 +24,7 @@ export default class PhonesPage {
       phones: PhoneService.getAll(),
     });
 
-    this._catalog._element.addEventListener('phoneSelected', (event) => {
+    this._catalog.on('phoneSelected', (event) => {
       let phoneId = event.detail;
       let phone = PhoneService.get(phoneId);
 
@@ -37,6 +37,11 @@ export default class PhonesPage {
     this._viewer = new PhoneViewer({
       element: this._element.querySelector('[data-component="phone-viewer"]'),
     });
+
+    this._viewer.on('back', () => {
+      this._catalog.show();
+      this._viewer.hide();
+    })
   }
 
   _initShoppingCart() {

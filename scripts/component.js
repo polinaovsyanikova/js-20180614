@@ -16,6 +16,13 @@ export default class Component {
   }
 
   on(eventName, selector, callback) {
+    if (!callback) {
+      callback = selector
+      this._element.addEventListener(eventName, callback);
+
+      return;
+    }
+
     this._element.addEventListener(eventName, (event) => {
       let delegateTarget = event.target.closest(selector);
 
