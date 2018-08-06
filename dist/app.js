@@ -93,40 +93,56 @@ var possibleConstructorReturn = function (self, call) {
 var HIDDEN_CLASS = 'js-hidden';
 
 var Component = function () {
-  function Component(_ref) {
-    var element = _ref.element;
-    classCallCheck(this, Component);
+    function Component(_ref) {
+        var element = _ref.element;
+        classCallCheck(this, Component);
 
-    this._element = element;
-  }
-
-  createClass(Component, [{
-    key: 'show',
-    value: function show() {
-      this._element.classList.remove(HIDDEN_CLASS);
+        this._element = element;
     }
-  }, {
-    key: 'hide',
-    value: function hide() {
-      this._element.classList.add(HIDDEN_CLASS);
-    }
-  }, {
-    key: 'on',
-    value: function on(eventName, selector, callback) {
-      this._element.addEventListener(eventName, function (event) {
-        var delegateTarget = event.target.closest(selector);
 
-        if (!delegateTarget) {
-          return;
+    createClass(Component, [{
+        key: 'show',
+        value: function show() {
+            this._element.classList.remove(HIDDEN_CLASS);
         }
+    }, {
+        key: 'hide',
+        value: function hide() {
+            this._element.classList.add(HIDDEN_CLASS);
+        }
+    }, {
+        key: '_trigger',
+        value: function _trigger(eventName, data) {
+            var customEvent = new CustomEvent(eventName, {
+                detail: data
+            });
 
-        event.delegateTarget = delegateTarget;
+            this._element.dispatchEvent(customEvent);
+        }
+    }, {
+        key: 'on',
+        value: function on(eventName, selector, callback) {
+            if (!callback) {
+                callback = selector;
+                this._element.addEventListener(eventName, callback);
 
-        callback(event);
-      });
-    }
-  }]);
-  return Component;
+                return;
+            }
+
+            this._element.addEventListener(eventName, function (event) {
+                var delegateTarget = event.target.closest(selector);
+
+                if (!delegateTarget) {
+                    return;
+                }
+
+                event.delegateTarget = delegateTarget;
+
+                callback(event);
+            });
+        }
+    }]);
+    return Component;
 }();
 
 var PhoneCatalog = function (_Component) {
@@ -141,10 +157,7 @@ var PhoneCatalog = function (_Component) {
     var _this = possibleConstructorReturn(this, (PhoneCatalog.__proto__ || Object.getPrototypeOf(PhoneCatalog)).call(this, { element: element }));
 
     _this._phones = phones;
-    _this._cartItems = [];
     _this._render();
-
-    _this._cart = document.getElementById('cart');
 
     _this.on('click', '[data-element="phone-link"]', function (event) {
       var phoneLink = event.delegateTarget;
@@ -152,45 +165,20 @@ var PhoneCatalog = function (_Component) {
       onPhoneSelected(phoneLink.dataset.phoneId);
     });
 
-    _this.on('click', '.btn-success', function (event) {
-      var itemLink = event.delegateTarget;
+    _this.on('click', '[data-element="btn-add"]', function (event) {
+      var addButton = event.delegateTarget;
+      var phoneElement = addButton.closest('[data-element="phone"]');
 
-      _this.addToCart(itemLink.dataset.phoneId);
-    });
-
-    _this.on('click', '#cart', function (event) {
-      var item = event.delegateTarget;
-      console.log(item);
-
-      _this.removeFromCart(item.parentElement().dataset.phoneId);
+      _this._trigger('addToShoppingCart', phoneElement.dataset.phoneId);
     });
     return _this;
   }
 
   createClass(PhoneCatalog, [{
-    key: 'addToCart',
-    value: function addToCart(phoneId) {
-      this._cartItems.push(phoneId);
-      this.renderCart();
-    }
-  }, {
-    key: 'removeFromCart',
-    value: function removeFromCart(item) {
-      this._cartItems.splice(this._cartItems.indexOf(item), 1);
-      this.renderCart();
-    }
-  }, {
-    key: 'renderCart',
-    value: function renderCart() {
-      this._cart.innerHTML = '\n    ' + this._cartItems.map(function (item) {
-        return '\n      <li class="cart-item" data-phone-id="' + item + '">\n      <p>' + item + '</p> <button class="btn-remove">\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0438\u0437 \u043A\u043E\u0440\u0437\u0438\u043D\u044B</button>\n        </li>\n      ';
-      }).join('') + '\n    ';
-    }
-  }, {
     key: '_render',
     value: function _render() {
       this._element.innerHTML = '\n      <ul class="phones">\n        ' + this._phones.map(function (phone) {
-        return '\n        \n          <li class="thumbnail">\n            <a\n              href="#!/phones/' + phone.id + '"\n              class="thumb"\n              data-element="phone-link"\n              data-phone-id="' + phone.id + '"\n            >\n              <img alt="' + phone.name + '" src="' + phone.imageUrl + '">\n            </a>\n  \n            <div class="phones__btn-buy-wrapper">\n              <a data-phone-id="' + phone.id + '" class="btn btn-success" >\n                Add\n              </a>\n            </div>\n  \n            <a \n              href="#!/phones/' + phone.id + '"\n              data-element="phone-link"\n              data-phone-id="' + phone.id + '"\n            >\n              ' + phone.name + '\n            </a>\n            \n            <p>' + phone.snippet + '</p>\n          </li>\n        \n        ';
+        return '\n        \n          <li\n            class="thumbnail"\n            data-element="phone"\n            data-phone-id="' + phone.id + '"\n          >\n            <a\n              href="#!/phones/' + phone.id + '"\n              class="thumb"\n              data-element="phone-link"\n            >\n              <img alt="' + phone.name + '" src="' + phone.imageUrl + '">\n            </a>\n  \n            <div class="phones__btn-buy-wrapper">\n              <a class="btn btn-success" data-element="button-add">\n                Add\n              </a>\n            </div>\n  \n            <a \n              href="#!/phones/' + phone.id + '"\n              data-element="phone-link"\n            >\n              ' + phone.name + '\n            </a>\n            \n            <p>' + phone.snippet + '</p>\n          </li>\n        \n        ';
       }).join('') + '\n      </ul>\n    ';
     }
   }]);
@@ -217,6 +205,10 @@ var PhoneViewer = function (_Component) {
         _this.on('click', '.btn-back', function (event) {
             var btnBack = event.delegateTarget;
             get(PhoneViewer.prototype.__proto__ || Object.getPrototypeOf(PhoneViewer.prototype), 'hide', _this).call(_this);
+        });
+
+        _this.on('click', '[data-element="btn-add"]', function () {
+            _this._trigger('add', _this._phone.id);
         });
         return _this;
     }
@@ -437,54 +429,131 @@ var PhoneService = {
   }
 };
 
-var PhonesPage = function () {
-  function PhonesPage(_ref) {
-    var element = _ref.element;
-    classCallCheck(this, PhonesPage);
+var ShoppingCart = function (_Component) {
+    inherits(ShoppingCart, _Component);
 
-    this._element = element;
+    function ShoppingCart(_ref) {
+        var element = _ref.element;
+        classCallCheck(this, ShoppingCart);
 
-    this._render();
+        var _this = possibleConstructorReturn(this, (ShoppingCart.__proto__ || Object.getPrototypeOf(ShoppingCart)).call(this, { element: element }));
 
-    this._initCatalog();
-    this._initViewer();
-  }
+        _this._items = {};
+        _this._cart = document.querySelector('ul[data-element=shopping-list]');
+        _this._render();
 
-  createClass(PhonesPage, [{
-    key: '_initCatalog',
-    value: function _initCatalog() {
-      var _this = this;
+        _this.on('click', 'data-element="btn-remove"', function (event) {
+            var item = event.delegateTarget.dataset.item;
 
-      this._catalog = new PhoneCatalog({
-        element: this._element.querySelector('[data-component="phone-catalog"]'),
-        phones: PhoneService.getAll(),
+            _this.removeItem(item);
+        });
+        return _this;
+    }
 
-        onPhoneSelected: function onPhoneSelected(phoneId) {
-          var phone = PhoneService.get(phoneId);
+    createClass(ShoppingCart, [{
+        key: 'addItem',
+        value: function addItem(phoneId) {
+            if (!this._items[item]) {
+                this._items[item] = 0;
+            }
 
-          _this._catalog.hide();
-          _this._viewer.showPhone(phone);
-        },
+            this._items[item]++;
 
-        backToCatalog: function backToCatalog() {
-          _this._catalog.show();
+            this._update();
         }
-      });
+    }, {
+        key: 'removeItem',
+        value: function removeItem(item) {
+            if (this._items[item]) {
+                this._items[item]--;
+            }
+
+            if (this._items[item] === 0) {
+                delete this._items[item];
+            }
+
+            this._update();
+        }
+    }, {
+        key: '_render',
+        value: function _render() {
+            this._element.innerHTML = '\n        <ul data-element="shopping-list">Shopping cart</ul>\n    ';
+        }
+    }, {
+        key: '_update',
+        value: function _update() {
+            var _this2 = this;
+
+            this._cart.innerHTML = '\n           ' + Object.keys(this._items).map(function (item) {
+                return '\n             <li>\n              ' + item + ' (' + _this2._items[item] + ')\n               <button\n                data-element="btn-remove"\n                data-item="' + item + '"\n               >\n                x\n               </button>\n             </li>\n        ';
+            }).join('') + '\n    ';
+        }
+    }]);
+    return ShoppingCart;
+}(Component);
+
+var PhonesPage = function () {
+    function PhonesPage(_ref) {
+        var element = _ref.element;
+        classCallCheck(this, PhonesPage);
+
+        this._element = element;
+
+        this._render();
+
+        this._initCatalog();
+        this._initViewer();
+        this._initShoppingCart();
     }
-  }, {
-    key: '_initViewer',
-    value: function _initViewer() {
-      this._viewer = new PhoneViewer({
-        element: this._element.querySelector('[data-component="phone-viewer"]')
-      });
-    }
-  }, {
-    key: '_render',
-    value: function _render() {
-      this._element.innerHTML = '\n      <div class="container-fluid">\n        <div class="row">\n      \n          <!--Sidebar-->\n          <div class="col-md-2">\n            <section>\n              <p>\n                Search:\n                <input>\n              </p>\n      \n              <p>\n                Sort by:\n                <select>\n                  <option value="name">Alphabetical</option>\n                  <option value="age">Newest</option>\n                </select>\n              </p>\n            </section>\n      \n            <section>\n              <p>Shopping Cart</p>\n              <ul id="cart">\n              </ul>\n            </section>\n          </div>\n      \n          <!--Main content-->\n          <div class="col-md-10">\n            <div data-component="phone-catalog"></div>\n            <div data-component="phone-viewer" class="js-hidden"></div>\n          </div>\n        </div>\n      </div>\n    ';
-    }
-  }]);
-  return PhonesPage;
+
+    createClass(PhonesPage, [{
+        key: '_initCatalog',
+        value: function _initCatalog() {
+            var _this = this;
+
+            this._catalog = new PhoneCatalog({
+                element: this._element.querySelector('[data-component="phone-catalog"]'),
+                phones: PhoneService.getAll(),
+
+                onPhoneSelected: function onPhoneSelected(phoneId) {
+                    var phone = PhoneService.get(phoneId);
+
+                    _this._catalog.hide();
+                    _this._viewer.showPhone(phone);
+                },
+
+                backToCatalog: function backToCatalog() {
+                    _this._catalog.show();
+                }
+            });
+
+            this._catalog.on('addToShoppingCart', function (event) {
+                var phoneId = event.detail;
+
+                _this._cart.addItem(phoneId);
+            });
+        }
+    }, {
+        key: '_initViewer',
+        value: function _initViewer() {
+            this._viewer = new PhoneViewer({
+                element: this._element.querySelector('[data-component="phone-viewer"]')
+            });
+        }
+    }, {
+        key: '_initShoppingCart',
+        value: function _initShoppingCart() {
+            this._cart = new ShoppingCart({
+                element: this._element.querySelector('[data-component="shopping-cart"]')
+            });
+        }
+    }, {
+        key: '_render',
+        value: function _render() {
+            this._element.innerHTML = '\n      <div class="container-fluid">\n        <div class="row"\n      \n          <!--Sidebar-->\n          <div class="col-md-2">\n            <section>\n              <p>\n                Search:\n                <input>\n              </p>\n      \n              <p>\n                Sort by:\n                <select>\n                  <option value="name">Alphabetical</option>\n                  <option value="age">Newest</option>\n                </select>\n              </p>\n            </section>\n      \n           <section>\n              <div data-component="shopping-cart"></div>\n            </section>\n          </div>\n      \n          <!--Main content-->\n          <div class="col-md-10">\n            <div data-component="phone-catalog"></div>\n            <div data-component="phone-viewer" class="js-hidden"></div>\n          </div>\n        </div>\n      </div>\n    ';
+        }
+    }]);
+    return PhonesPage;
 }();
 
 new PhonesPage({

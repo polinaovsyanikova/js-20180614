@@ -20,6 +20,10 @@ export default class PhoneViewer extends Component {
             let btnBack = event.delegateTarget;
             super.hide();
         });
+
+        this.on('click', '[data-element="btn-add"]', () => {
+            this._trigger('add', this._phone.id);
+        });
     }
 
     showPhone(phone) {
