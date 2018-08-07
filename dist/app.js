@@ -297,19 +297,26 @@ var PhonesFilter = function (_Component) {
         value: function _filter(value) {
             var _this2 = this;
 
-            // this._catalog = new PhoneCatalog({
-            //     element: this._element.querySelector('[data-component="phone-catalog"]'),
-            // });
+            var catalog = document.querySelector('[data-component="phone-catalog"]');
+
+            this._catalog = new PhoneCatalog({
+                element: catalog
+            });
 
             PhoneService.getAll(function (phones) {
-                phones.sort(function (a, b) {
-                    if (a.id < b.id) return -1;
-                    if (a.id > b.id) return 1;
-                    return 0;
+                var sortedByName = phones.filter(function (phone) {
+                    var name = phone.id;
+
+                    if (name.indexOf(value) !== -1) {
+                        console.log(phone);
+                        return phone;
+                    }
                 });
 
-                console.log(phones);
-                _this2._catalog.showPhones(phones);
+                console.log(sortedByName);
+
+                // console.log(phones);
+                _this2._catalog.showPhones(sortedByName);
             });
         }
     }, {

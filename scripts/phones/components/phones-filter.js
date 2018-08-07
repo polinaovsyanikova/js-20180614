@@ -12,15 +12,12 @@ export default class PhonesFilter extends Component {
         this.on('click', '[data-element="btn-search"]', (event) => {
             event.preventDefault();
             let value = event.delegateTarget.previousElementSibling.value;
-            console.log(value);
-
+            
             this._filter(value);
         });
 
         this.on('change', '[data-element="sort"]', (event) => {
             let value = event.delegateTarget.value;
-
-            console.log(value);
 
             this._sort(value);
         });
@@ -34,14 +31,15 @@ export default class PhonesFilter extends Component {
         });
 
         PhoneService.getAll((phones) => {
-            phones.filter(function(a, b){
-                if(a.id < b.id) return -1;
-                if(a.id > b.id) return 1;
-                return 0;
+            let sortedByName = phones.filter(function(phone){
+                let name = phone.id;
+
+                if (name.indexOf(value) !== -1) {
+                    return phone;
+                }
             });
 
-            console.log(phones);
-            this._catalog.showPhones(phones)
+            this._catalog.showPhones(sortedByName)
         });
     }
 
